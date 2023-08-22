@@ -11,6 +11,8 @@
 
   General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 -}
+{-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE TemplateHaskell #-}
 
@@ -25,14 +27,17 @@ import Control.Lens.Operators
 import Data.Geospatial
 import Data.LineString
 import Data.OpenApi
-import Data.Text
-import EulerHS.Prelude
-import Kernel.Storage.Esqueleto (derivePersistField)
-import Kernel.Utils.GenericPretty (PrettyShow)
+import Data.Singletons.TH
+import Data.Text hiding (toLower)
+import qualified GHC.Show as Show
+import Kernel.Prelude
+import Kernel.Storage.Esqueleto (PersistField, PersistFieldSql, derivePersistField)
+import Kernel.Utils.GenericPretty (PrettyShow, Showable (..))
 import Servant.API (FromHttpApiData (..), ToHttpApiData (..))
 
 data MapsService = Google | OSRM | MMI
   deriving (Show, Read, Eq, Ord, Generic, ToJSON, FromJSON, ToSchema)
+  deriving (PrettyShow) via Showable MapsService
 
 availableMapsServices :: [MapsService]
 availableMapsServices = [Google, OSRM, MMI]
@@ -62,3 +67,62 @@ instance FromHttpApiData LatLong where
 instance ToHttpApiData LatLong where
   toQueryParam :: LatLong -> Text
   toQueryParam LatLong {..} = show lat <> "," <> show lon
+
+-- sum should be always 100
+data MapsServiceUsage (msum :: MapsServiceUsageMethod) = MapsServiceUsage
+  { mapsService :: SMapsService msum,
+    usePercentage :: Bool, -- False by default
+    googlePercentage :: Maybe Int,
+    osrmPercentage :: Maybe Int,
+    mmiPercentage :: Maybe Int
+  }
+  deriving (Generic, Show, FromJSON, ToJSON, ToSchema)
+
+data MapsServiceUsagePercentage (msum :: MapsServiceUsageMethod) = MapsServiceUsagePercentage
+  { usePercentage :: Bool, -- False by default
+    googlePercentage :: Maybe Int,
+    osrmPercentage :: Maybe Int,
+    mmiPercentage :: Maybe Int
+  }
+  deriving (Generic, FromJSON, ToJSON)
+
+mkMapsServiceUsage :: SMapsService msum -> MapsServiceUsagePercentage msum -> MapsServiceUsage msum
+mkMapsServiceUsage mapsService MapsServiceUsagePercentage {..} = MapsServiceUsage {..}
+
+mkMapsServiceUsagePercentage :: MapsServiceUsage msum -> MapsServiceUsagePercentage msum
+mkMapsServiceUsagePercentage MapsServiceUsage {..} = MapsServiceUsagePercentage {..}
+
+-- strict maps service for more type safety
+
+newtype SMapsService (msum :: MapsServiceUsageMethod) = SMapsService
+  { getStrictMapsService :: MapsService
+  }
+  deriving newtype (Show, Read, Eq, Ord, Generic, ToJSON, FromJSON, ToSchema, PrettyShow, PersistField, PersistFieldSql)
+
+data MapsServiceUsageMethod
+  = GetDistances
+  | GetEstimatedPickupDistances
+  | GetRoutes
+  | GetPickupRoutes
+  | GetTripRoutes
+  | SnapToRoad
+  | GetPlaceName
+  | GetPlaceDetails
+  | AutoComplete
+  | GetDistancesForCancelRide
+
+genSingletons [''MapsServiceUsageMethod]
+
+-- TODO add some generic instance
+instance Show MapsServiceUsageMethod where
+  show = \case
+    GetDistances -> "getDistances"
+    GetEstimatedPickupDistances -> "getEstimatedPickupDistances"
+    GetRoutes -> "getRoutes"
+    GetPickupRoutes -> "getPickupRoutes"
+    GetTripRoutes -> "getTripRoutes"
+    SnapToRoad -> "snapToRoad"
+    GetPlaceName -> "getPlaceName"
+    GetPlaceDetails -> "getPlaceDetails"
+    AutoComplete -> "autoComplete"
+    GetDistancesForCancelRide -> "getDistancesForCancelRide"
