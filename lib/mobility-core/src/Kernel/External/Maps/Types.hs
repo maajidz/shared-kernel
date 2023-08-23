@@ -29,15 +29,30 @@ import Data.LineString
 import Data.OpenApi
 import Data.Singletons.TH
 import Data.Text hiding (toLower)
+import qualified Database.Beam as B
+import Database.Beam.Backend (BeamSqlBackend, FromBackendRow, HasSqlValueSyntax (sqlValueSyntax), autoSqlValueSyntax)
+import Database.Beam.Postgres (Postgres)
+import Database.PostgreSQL.Simple.FromField (FromField (fromField))
 import qualified GHC.Show as Show
 import Kernel.Prelude
 import Kernel.Storage.Esqueleto (PersistField, PersistFieldSql, derivePersistField)
+import Kernel.Types.Common (fromFieldEnum)
 import Kernel.Utils.GenericPretty (PrettyShow, Showable (..))
 import Servant.API (FromHttpApiData (..), ToHttpApiData (..))
 
 data MapsService = Google | OSRM | MMI
   deriving (Show, Read, Eq, Ord, Generic, ToJSON, FromJSON, ToSchema)
   deriving (PrettyShow) via Showable MapsService
+
+instance FromField MapsService where
+  fromField = fromFieldEnum
+
+instance HasSqlValueSyntax be String => HasSqlValueSyntax be MapsService where
+  sqlValueSyntax = autoSqlValueSyntax
+
+instance BeamSqlBackend be => B.HasSqlEqualityCheck be MapsService
+
+instance FromBackendRow Postgres MapsService
 
 availableMapsServices :: [MapsService]
 availableMapsServices = [Google, OSRM, MMI]
@@ -97,7 +112,14 @@ mkMapsServiceUsagePercentage MapsServiceUsage {..} = MapsServiceUsagePercentage 
 newtype SMapsService (msum :: MapsServiceUsageMethod) = SMapsService
   { getStrictMapsService :: MapsService
   }
-  deriving newtype (Show, Read, Eq, Ord, Generic, ToJSON, FromJSON, ToSchema, PrettyShow, PersistField, PersistFieldSql)
+  deriving newtype (Show, Read, Eq, Ord, Generic, ToJSON, FromJSON, ToSchema, PrettyShow, PersistField, PersistFieldSql, FromField)
+
+instance HasSqlValueSyntax be String => HasSqlValueSyntax be (SMapsService msum) where
+  sqlValueSyntax = sqlValueSyntax . getStrictMapsService
+
+instance BeamSqlBackend be => B.HasSqlEqualityCheck be (SMapsService msum)
+
+instance Typeable msum => FromBackendRow Postgres (SMapsService msum)
 
 data MapsServiceUsageMethod
   = GetDistances

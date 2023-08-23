@@ -1,4 +1,3 @@
-{-# LANGUAGE DerivingStrategies #-}
 {-
   Copyright 2022-23, Juspay India Pvt Ltd
 
@@ -12,7 +11,7 @@
 
   General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 -}
-{-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE DerivingStrategies #-}
 
 module Kernel.External.Payment.Interface.Types
   ( module Kernel.External.Payment.Interface.Types,
