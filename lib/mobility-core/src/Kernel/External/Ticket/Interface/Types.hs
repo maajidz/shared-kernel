@@ -20,7 +20,7 @@ where
 
 import Deriving.Aeson
 import Kernel.External.Ticket.Kapture.Config as Kapture
-import Kernel.External.Ticket.Kapture.Types as Reexport (Classification (..), CreateTicketResp (..))
+import Kernel.External.Ticket.Kapture.Types as Reexport (Classification (..), CreateTicketResp (..), UpdateTicketResp (..))
 import Kernel.External.Ticket.Types as Reexport
 import Kernel.Prelude
 import Kernel.Types.Common (Money)
@@ -65,4 +65,11 @@ data Location = Location
     building :: Maybe Text,
     areaCode :: Maybe Text,
     area :: Maybe Text
+  }
+  
+data UpdateTicketReq = UpdateTicketReq
+  { comment :: Text,
+    ticket_id :: Text,
+    status :: Text,
+    sub_status :: Text
   }
