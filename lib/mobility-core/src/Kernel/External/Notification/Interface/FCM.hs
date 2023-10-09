@@ -53,6 +53,7 @@ interfaceEntityTypeToFCMEntityType = \case
   Interface.Product -> FCM.Product
   Interface.Merchant -> FCM.Merchant
   Interface.Person -> FCM.Person
+  Interface.EditLocation -> FCM.EditLocation
 
 interfaceCategoryToFCMNotificationType :: Interface.Category -> FCM.FCMNotificationType
 interfaceCategoryToFCMNotificationType = \case
@@ -79,6 +80,7 @@ interfaceCategoryToFCMNotificationType = \case
   Interface.NEW_MESSAGE -> FCM.NEW_MESSAGE
   Interface.REFERRAL_ACTIVATED -> FCM.REFERRAL_ACTIVATED
   Interface.CHAT_MESSAGE -> FCM.CHAT_MESSAGE
+  Interface.EDIT_LOCATION -> FCM.EDIT_LOCATION
 
 interfaceShowNotificationToFCMShowNotification :: Interface.ShowNotification -> FCM.FCMShowNotification
 interfaceShowNotificationToFCMShowNotification = \case
