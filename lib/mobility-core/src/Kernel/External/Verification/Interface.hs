@@ -20,6 +20,7 @@ module Kernel.External.Verification.Interface
     extractRCImage,
     extractDLImage,
     validateFaceImage,
+    getTask,
   )
 where
 
@@ -100,4 +101,15 @@ extractDLImage ::
   m ExtractDLImageResp
 extractDLImage serviceConfig req = case serviceConfig of
   IdfyConfig cfg -> Idfy.extractDLImage cfg req
+  FaceVerificationConfig _ -> throwError $ InternalError "Not Implemented!"
+
+getTask ::
+  ( EncFlow m r,
+    CoreMetrics m
+  ) =>
+  VerificationServiceConfig ->
+  GetTaskReq ->
+  m GetTaskResp
+getTask serviceConfig req = case serviceConfig of
+  IdfyConfig cfg -> Idfy.getTask cfg req
   FaceVerificationConfig _ -> throwError $ InternalError "Not Implemented!"
