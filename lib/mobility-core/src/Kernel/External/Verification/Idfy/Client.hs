@@ -29,6 +29,7 @@ where
 
 -- import qualified Data.Text as T
 
+import Data.List.NonEmpty
 import qualified Data.Text as DT
 import EulerHS.Prelude
 import qualified EulerHS.Types as T
@@ -187,7 +188,7 @@ type GetTaskAPI =
     :> Header "api-key" ApiKey
     :> Header "account-id" AccountId
     :> MandatoryQueryParam "request_id" Text
-    :> Get '[JSON] VerificationResponse
+    :> Get '[JSON] (NonEmpty VerificationResponse)
 
 getTaskApi :: Proxy GetTaskAPI
 getTaskApi = Proxy
@@ -201,7 +202,7 @@ getTask ::
   BaseUrl ->
   Text ->
   m VerificationResponse
-getTask apiKey accountId url request_id = callIdfyAPI url task "getTask" getTaskApi
+getTask apiKey accountId url request_id = head <$> callIdfyAPI url task "getTask" getTaskApi
   where
     task =
       T.client
