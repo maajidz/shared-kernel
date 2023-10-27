@@ -19,7 +19,6 @@ import Data.Aeson hiding (Error)
 import Data.OpenApi hiding (name)
 import EulerHS.Prelude hiding (state)
 import Kernel.Utils.JSON
-import Kernel.Utils.Time
 
 type ImageValidateResponse = IdfyResponse ValidateResponse
 
@@ -35,8 +34,8 @@ type IdfyResult = Output DLVerificationOutput RCVerificationOutput
 
 data IdfyResponse a = IdfyResponse
   { action :: Text,
-    completed_at :: UTCTime,
-    created_at :: UTCTime,
+    completed_at :: Maybe Text,
+    created_at :: Text,
     group_id :: Text,
     request_id :: Text,
     result :: Maybe a,
