@@ -63,8 +63,11 @@ library
       Kernel.External.Maps.Google.PolyLinePoints
       Kernel.External.Maps.Google.RoadsClient
       Kernel.External.Maps.HasCoordinates
+      Kernel.External.Maps.HERE.Config
+      Kernel.External.Maps.HERE.MapsClient
       Kernel.External.Maps.Interface
       Kernel.External.Maps.Interface.Google
+      Kernel.External.Maps.Interface.HERE
       Kernel.External.Maps.Interface.MMI
       Kernel.External.Maps.Interface.OSRM
       Kernel.External.Maps.Interface.Types

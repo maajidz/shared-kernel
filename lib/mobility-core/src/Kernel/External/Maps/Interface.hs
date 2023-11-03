@@ -32,8 +32,10 @@ where
 
 import EulerHS.Prelude ((...))
 import Kernel.External.Maps.Google.Config as Reexport
+import Kernel.External.Maps.HERE.Config as Reexport
 import Kernel.External.Maps.HasCoordinates as Reexport (HasCoordinates (..))
 import qualified Kernel.External.Maps.Interface.Google as Google
+import qualified Kernel.External.Maps.Interface.HERE as HERE
 import qualified Kernel.External.Maps.Interface.MMI as MMI
 import qualified Kernel.External.Maps.Interface.OSRM as OSRM
 import Kernel.External.Maps.Interface.Types as Reexport
@@ -80,6 +82,7 @@ getDistancesProvided = \case
   Google -> True
   OSRM -> False
   MMI -> True
+  HERE -> False
 
 -- FIXME this logic is redundant, because we throw error always when getDistancesProvided service = False
 getDistances ::
@@ -95,12 +98,14 @@ getDistances serviceConfig req = case serviceConfig of
   GoogleConfig cfg -> Google.getDistances cfg req
   OSRMConfig cfg -> OSRM.getDistances cfg req
   MMIConfig cfg -> MMI.getDistanceMatrix cfg req
+  HEREConfig _ -> throwNotProvidedError "getDistances" HERE
 
 getRoutesProvided :: MapsService -> Bool
 getRoutesProvided = \case
   Google -> True
   OSRM -> False
   MMI -> False
+  HERE -> False
 
 getRoutes ::
   ( EncFlow m r,
@@ -114,12 +119,14 @@ getRoutes serviceConfig req = case serviceConfig of
   GoogleConfig cfg -> Google.getRoutes cfg req
   OSRMConfig osrmCfg -> OSRM.getRoutes osrmCfg req
   MMIConfig cfg -> MMI.getRoutes cfg req
+  HEREConfig _ -> throwNotProvidedError "getRoutes" HERE
 
 snapToRoadProvided :: MapsService -> Bool
 snapToRoadProvided = \case
   Google -> True
   OSRM -> True
   MMI -> True
+  HERE -> False
 
 snapToRoad ::
   ( EncFlow m r,
@@ -133,12 +140,14 @@ snapToRoad serviceConfig req = case serviceConfig of
   GoogleConfig cfg -> Google.snapToRoad cfg req
   OSRMConfig osrmCfg -> OSRM.callOsrmMatch osrmCfg req
   MMIConfig mmiCfg -> MMI.snapToRoad mmiCfg req
+  HEREConfig _ -> throwNotProvidedError "snapToRoad" HERE
 
 autoCompleteProvided :: MapsService -> Bool
 autoCompleteProvided = \case
   Google -> True
   OSRM -> False
   MMI -> True
+  HERE -> False
 
 autoComplete ::
   ( EncFlow m r,
@@ -152,12 +161,14 @@ autoComplete serviceConfig req = case serviceConfig of
   GoogleConfig cfg -> Google.autoComplete cfg req
   OSRMConfig _ -> throwNotProvidedError "autoComplete" OSRM
   MMIConfig cfg -> MMI.autoSuggest cfg req
+  HEREConfig _ -> throwNotProvidedError "autoComplete" HERE
 
 getPlaceDetailsProvided :: MapsService -> Bool
 getPlaceDetailsProvided = \case
   Google -> True
   OSRM -> False
   MMI -> True
+  HERE -> False
 
 getPlaceDetails ::
   ( EncFlow m r,
@@ -170,12 +181,14 @@ getPlaceDetails serviceConfig req = case serviceConfig of
   GoogleConfig cfg -> Google.getPlaceDetails cfg req
   OSRMConfig _ -> throwNotProvidedError "getPlaceDetails" OSRM
   MMIConfig cfg -> MMI.getPlaceDetails cfg req
+  HEREConfig _ -> throwNotProvidedError "getPlaceDetails" HERE
 
 getPlaceNameProvided :: MapsService -> Bool
 getPlaceNameProvided = \case
   Google -> True
   OSRM -> False
   MMI -> True
+  HERE -> True
 
 getPlaceName ::
   ( EncFlow m r,
@@ -189,3 +202,4 @@ getPlaceName serviceConfig req = case serviceConfig of
   GoogleConfig cfg -> Google.getPlaceName cfg req
   OSRMConfig _ -> throwNotProvidedError "getPlaceName" OSRM
   MMIConfig cfg -> MMI.geocode cfg req
+  HEREConfig cfg -> HERE.getPlaceName cfg req

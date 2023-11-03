@@ -30,6 +30,7 @@ import Data.Text
 import Deriving.Aeson
 import EulerHS.Prelude
 import qualified Kernel.External.Maps.Google.Config as Google
+import qualified Kernel.External.Maps.HERE.Config as HERE
 import qualified Kernel.External.Maps.MMI.Config as MMI
 import qualified Kernel.External.Maps.OSRM.Config as OSRM
 import Kernel.External.Maps.Types
@@ -37,7 +38,7 @@ import Kernel.External.Types (Language)
 import Kernel.Types.Common
 import Kernel.Utils.GenericPretty (PrettyShow)
 
-data MapsServiceConfig = GoogleConfig Google.GoogleCfg | OSRMConfig OSRM.OSRMCfg | MMIConfig MMI.MMICfg
+data MapsServiceConfig = GoogleConfig Google.GoogleCfg | OSRMConfig OSRM.OSRMCfg | MMIConfig MMI.MMICfg | HEREConfig HERE.HERECfg
   deriving stock (Show, Eq, Generic)
   deriving (FromJSON, ToJSON) via CustomJSON '[SumTaggedObject "tag" "content"] MapsServiceConfig
 
