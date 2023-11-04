@@ -39,7 +39,7 @@ type HEREAPI =
 
 type PlaceNameAPI =
   "revgeocode"
-    :> MandatoryQueryParam "key" Text
+    :> MandatoryQueryParam "apiKey" Text
     :> MandatoryQueryParam "at" LatLong
     :> QueryParam "lang" Language
     :> Get '[JSON] GetPlaceNameResp
